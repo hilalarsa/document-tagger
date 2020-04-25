@@ -11,7 +11,7 @@ from pdfminer.converter import PDFResourceManager, PDFPageAggregator
 from pdfminer.pdfpage import PDFPage
 from pdfminer.layout import LTTextBoxHorizontal
 
-document = open('sample_surat2.pdf', 'rb')
+document = open('../sample_surat2.pdf', 'rb')
 #Create resource manager
 rsrcmgr = PDFResourceManager()
 # Set parameters for analysis.

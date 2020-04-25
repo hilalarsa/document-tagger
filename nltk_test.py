@@ -8,3 +8,8 @@ for sentence in sentences:
 
     for word in words:
         print(word)
+
+
+
+
+# purpose : use nltk to split text collection into sentences, and sentences into words

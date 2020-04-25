@@ -5,7 +5,7 @@ import nltk
 
   
 # creating a pdf file object 
-pdfFileObj = open('sample_pdf3.pdf', 'rb') 
+pdfFileObj = open('../sample_pdf3.pdf', 'rb') 
   
 # creating a pdf reader object 
 pdfReader = PyPDF2.PdfFileReader(pdfFileObj) 
