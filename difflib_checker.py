@@ -10,6 +10,7 @@ def text_matcher(sourceWord, testedWord):
     result = [] # final result
     tempOutput = [] # temporary var to save output per name/word
 
+    counter = 0
     for word in sourceWord:
 
         singleNameArray = testedWord.split() # get per name/rows from api
@@ -29,11 +30,12 @@ def text_matcher(sourceWord, testedWord):
                     # output["ratio"] = seq.ratio()
                    
                     tempOutput = [] # reset output
-                    print(result)
+                    counter = counter + 1
                     break
-    return array_merge(result)
+    return array_merge(result, counter)
 
-def array_merge(array):
+def array_merge(array, counter):
     limiter = ' '
-    return(limiter.join(array))
+    if(counter > 0): # only return if more than 1 occurance
+        return(limiter.join(array), counter)
 

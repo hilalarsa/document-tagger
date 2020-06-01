@@ -13,7 +13,7 @@ from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from tesseract_ocr import image_to_text
 from pypdf_test import pdf_to_text
 from difflib_checker import text_matcher
-from api_test import get_data
+from api import get_data
 
 # receive filepath, filter to either pdf or image
 def textTransform(filePath):
@@ -40,15 +40,12 @@ def textTransform(filePath):
 # tesseract run on subject to raw text
 # rawText = pytesseract.image_to_string('./contoh 2 surat tugas.jpeg', lang='ind')
 # raw_text = pytesseract.image_to_string('../sample/lembarpengesahan1.jpeg', lang='ind')
-raw_text = textTransform("../sample/lembarpengesahan1.jpeg")
-raw_text = textTransform("../sample_pdf3.pdf")
-raw_text = textTransform("../server/dosen.js")
+raw_text = textTransform("../sample/s_tugas1.jpeg")
+# raw_text = textTransform("../sample_pdf3.pdf")
+# raw_text = textTransform("../server/dosen.js")
 
 # tokenize text into sentences
 sentences = nltk.sent_tokenize(raw_text)
-
-print(sentences)
-
 
 # split sentence into individual word
 full_words = []
@@ -69,21 +66,25 @@ for i, sentence in enumerate(sentences):
     full_words = full_words + word
     # print words
 
-# print(full_words)
+# text ready to be compared with database
+print(full_words)
 
-
-
-
-
-
-
-# dataDosen = get_data('dosen')
+dataDosen = get_data('dosen')
 dataJudul = get_data('judul')
-# print(dataDosen)
-# print(dataJudul)
-dataFromApi = ['putra prima arhandi', 'luqman affandi', 'dimas wahyu wibowo']
-for item in dataJudul:
-    triggerWord = item['trigger_word']
+
+# sample
+# dataDosen = ['ahmadi yuli ananta','ariadi retno tri hayati ririd','arief prasetyo','banni satria andoko','budi harijanto','cahya rahmad','deddy kusbianto purwoko aji','dimas wahyu wibowo''dwi puspitasari','dyah ayu irawati','ekojono','ely setyo astuti','erfan rohadi','faisal rahutomo','gunawan budiprasetyo','hendra pradibta','imam fahrur rozi','indra dharma wijaya','luqman affandi', 'nurudin santoso','putra prima arhandi','rawansyah','ridwan rismanto','rosa andrie asmara','siti romlah','ulla defana rosiani','yan watequlis syaifudin']
+# dataJudul = ['surat tugas', 'lembar pengesahan']
+
+# print dataDosen
+# for item in dataDosen:
+#     a = text_matcher(full_words, item.nama_dosen)
+#     if a is not None:
+#         print(a)
+
+# JUDUL
+# for item in dataJudul:
+    # triggerWord = item['trigger_word']
     # print(triggerWord)
     # print(text_matcher(full_words, item['trigger_word'])) # text_matcher(sourceWord, testedWord):
 

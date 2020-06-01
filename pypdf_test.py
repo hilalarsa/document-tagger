@@ -11,7 +11,7 @@ def pdf_to_text(filePath):
     pdfReader = PyPDF2.PdfFileReader(pdfFileObj) 
 
     # printing number of pages in pdf file 
-    print(pdfReader.numPages) 
+    # print(pdfReader.numPages) 
 
     # creating a page object 
     pageObj = pdfReader.getPage(0) 
@@ -29,6 +29,5 @@ def pdf_to_text(filePath):
     # closing the pdf file object 
 
     # return function value
-    print(pageObj.extractText())
     return pageObj.extractText()
     pdfFileObj.close()

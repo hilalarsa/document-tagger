@@ -1,46 +1,90 @@
+import cv2
+import numpy as np
 import pytesseract
-# import nltk
-# import difflib
-
 import re
 
-# from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
-# from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
-# create stopper
-# factoryRemover = StopWordRemoverFactory()
-# stopword = factoryRemover.create_stop_word_remover()
+img = cv2.imread('image.jpg')
 
-# create stemmer
-# factoryStemmer = StemmerFactory()
-# stemmer = factoryStemmer.create_stemmer()
+# get grayscale image
+def get_grayscale(image):
+    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+# noise removal
+def remove_noise(image):
+    return cv2.medianBlur(image,5)
+ 
+#thresholding
+def thresholding(image):
+    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
+#dilation
+def dilate(image):
+    kernel = np.ones((5,5),np.uint8)
+    return cv2.dilate(image, kernel, iterations = 1)
+    
+#erosion
+def erode(image):
+    kernel = np.ones((5,5),np.uint8)
+    return cv2.erode(image, kernel, iterations = 1)
+
+#opening - erosion followed by dilation
+def opening(image):
+    kernel = np.ones((5,5),np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+#canny edge detection
+def canny(image):
+    return cv2.Canny(image, 100, 200)
+
+#skew correction
+def deskew(image):
+    coords = np.column_stack(np.where(image > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    return rotated
+
+#template matching
+def match_template(image, template):
+    return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
+
+# TESSERACT
 def image_to_text(filePath):
+    image = cv2.imread(filePath)
+
+    gray = get_grayscale(image)
+    # thresh = thresholding(gray)
+    # opening2 = opening(gray)
+    # canny2 = canny(gray)
+
     # tesseract run on subject
-    text = pytesseract.image_to_string(filePath, lang='ind')
+    text = pytesseract.image_to_string(gray, lang='ind')
     return text
 
+def image_to_data(filePath):
+    # tesseract run on subject
+    data = pytesseract.image_to_data(filePath, lang='ind')
+    return data
 
-# tokenize text into sentences
-# sentences = nltk.sent_tokenize(text)
+def slice_per(source, step):
+    return [source[i::step] for i in range(step)]
 
-# print sentences[0]
-# GRAVEYARD
-# split sentence into individual word
-# arrayFull = []
-# for i, sentence in enumerate(sentences):
-#     # replace enter (\n) with space
-#     resultNoEnter = re.sub('\n', ' ', sentence)
-#     # replace tabs and multiple spaces with single space
-#     resultNoTab = re.sub(' +', ' ', resultNoEnter)
-#     # change text encoding to utf8
-#     encodedText = resultNoTab.encode("utf-8")
-#     print  str(i) + ". " + encodedText
-    # words = encodedText.split()
-    # arrayFull = arrayFull + encodedText
-    # print words
-    # three = [' '.join([i,j,k]) for i,j,k in zip(words, words[1:], words[2:])]
-    # print difflib.get_close_matches('putra', words, cutoff=0.9)
+filePath = "../sample/s_tugas1.jpeg"
+# a = image_to_data(filePath)
 
-# print arrayFull
+
+# print(image_to_text(filePath))
+# print(image_to_text("/opening.png"))
+# print(image_to_text("/canny.png"))
+
+# print(slice_per(a.split('\t'),14))
+# cv2.imwrite('./thresh.png', thresh)
+# cv2.imwrite('./opening.png', opening)
+# cv2.imwrite('./canny.png', canny)
