@@ -67,20 +67,39 @@ for i, sentence in enumerate(sentences):
     # print words
 
 # text ready to be compared with database
-print(full_words)
+# print(full_words)
 
-dataDosen = get_data('dosen')
-dataJudul = get_data('judul')
+# dataDosen = get_data('dosen')
+# dataJudul = get_data('judul')
 
 # sample
-# dataDosen = ['ahmadi yuli ananta','ariadi retno tri hayati ririd','arief prasetyo','banni satria andoko','budi harijanto','cahya rahmad','deddy kusbianto purwoko aji','dimas wahyu wibowo''dwi puspitasari','dyah ayu irawati','ekojono','ely setyo astuti','erfan rohadi','faisal rahutomo','gunawan budiprasetyo','hendra pradibta','imam fahrur rozi','indra dharma wijaya','luqman affandi', 'nurudin santoso','putra prima arhandi','rawansyah','ridwan rismanto','rosa andrie asmara','siti romlah','ulla defana rosiani','yan watequlis syaifudin']
-# dataJudul = ['surat tugas', 'lembar pengesahan']
+dataDosen = ['ahmadi yuli ananta','ariadi retno tri hayati ririd','arief prasetyo','banni satria andoko','budi harijanto','cahya rahmad','deddy kusbianto purwoko aji','dimas wahyu wibowo''dwi puspitasari','dyah ayu irawati','ekojono','ely setyo astuti','erfan rohadi','faisal rahutomo','gunawan budiprasetyo','hendra pradibta','imam fahrur rozi','indra dharma wijaya','luqman affandi', 'nurudin santoso','putra prima arhandi','rawansyah','ridwan rismanto','rosa andrie asmara','siti romlah','ulla defana rosiani','yan watequlis syaifudin']
+dataJudul = ['surat tugas', 'lembar pengesahan']
 
 # print dataDosen
-# for item in dataDosen:
-#     a = text_matcher(full_words, item.nama_dosen)
-#     if a is not None:
-#         print(a)
+
+nama_dosen = []
+document_type = ''
+occuranceCounter = 0
+for item in dataDosen:
+    a = text_matcher(full_words, item)
+    if a is not None:
+        nama_dosen.append(a)
+        occuranceCounter = occuranceCounter + 1
+
+for item in dataJudul:
+    a = text_matcher(full_words, item)
+    if a is not None:
+        document_type = a['text']
+
+# Start of Rule base method
+if(occuranceCounter <= 1):
+    document_type = "surat tugas individu"
+elif(occuranceCounter > 1):
+    document_type = "surat tugas kelompok"
+
+print(nama_dosen)
+print(document_type)
 
 # JUDUL
 # for item in dataJudul:
@@ -89,7 +108,7 @@ dataJudul = get_data('judul')
     # print(text_matcher(full_words, item['trigger_word'])) # text_matcher(sourceWord, testedWord):
 
 
-# check document extension
+# check document extension (V)
 # check dosen name, and name occurance
 # check document type
 # check rest info

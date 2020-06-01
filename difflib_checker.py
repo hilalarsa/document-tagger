@@ -14,7 +14,7 @@ def text_matcher(sourceWord, testedWord):
     for word in sourceWord:
 
         singleNameArray = testedWord.split() # get per name/rows from api
-        # print(individualName)
+        
         partLength = len(singleNameArray) # save name length for checker start-end indicator 
         for singleName in singleNameArray: #get per name word from splitted name/row from api
             # print(part + " " + word)
@@ -24,18 +24,23 @@ def text_matcher(sourceWord, testedWord):
             if(seq.ratio() > 0.8): # if ratio is more than 80%, place data from api to output text
                 # print(seq.ratio()) # sequence ratio
                 tempOutput.append(singleName) # add singleName to 
-                if(len(tempOutput) >= partLength):
-                    result = tempOutput
+                
+                checkAgain = array_merge(tempOutput) # full string result after merged and match on each iteration
+                seq2 = SequenceMatcher(a=testedWord,b=checkAgain) # check ratio AGAIN if each text in unmerged array is good enough
+                
+                if(seq2.ratio() > 0.8):
+                    result = tempOutput # save output tempOutput and reset it
                     # output["nama_dosen"] = result
                     # output["ratio"] = seq.ratio()
-                   
                     tempOutput = [] # reset output
                     counter = counter + 1
                     break
-    return array_merge(result, counter)
-
-def array_merge(array, counter):
+                elif(len(tempOutput) >= partLength):
+                    tempOutput = [] # reset output
+    if(counter > 0):
+        return {"text": array_merge(result), "counter": counter}
+    
+def array_merge(array):
     limiter = ' '
-    if(counter > 0): # only return if more than 1 occurance
-        return(limiter.join(array), counter)
+    return limiter.join(array)
 

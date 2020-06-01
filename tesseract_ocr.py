@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
 import pytesseract
+from pytesseract import Output
 import re
+
+from itertools import izip
 
 
 img = cv2.imread('image.jpg')
@@ -70,21 +73,27 @@ def image_to_text(filePath):
 
 def image_to_data(filePath):
     # tesseract run on subject
-    data = pytesseract.image_to_data(filePath, lang='ind')
+    data = pytesseract.image_to_data(filePath, lang='ind', output_type=Output.DICT)
     return data
 
 def slice_per(source, step):
     return [source[i::step] for i in range(step)]
 
 filePath = "../sample/s_tugas1.jpeg"
-# a = image_to_data(filePath)
+a = image_to_data(filePath)
+# print(a['text'])
+# print(b[11])
+# list1 = np.array_split(b, 11)
+# print(list1[0])
+# i = iter(data)
+# b = dict(izip(i, i))
+
 
 
 # print(image_to_text(filePath))
 # print(image_to_text("/opening.png"))
 # print(image_to_text("/canny.png"))
 
-# print(slice_per(a.split('\t'),14))
 # cv2.imwrite('./thresh.png', thresh)
 # cv2.imwrite('./opening.png', opening)
 # cv2.imwrite('./canny.png', canny)
