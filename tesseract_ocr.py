@@ -3,11 +3,22 @@ import numpy as np
 import pytesseract
 from pytesseract import Output
 import re
+import os
 
+from PIL import Image
 from itertools import izip
 
 
-img = cv2.imread('image.jpg')
+# img = cv2.imread('image.jpg')
+def write_image_to_disk(image, filename):
+    destination = './image_output'
+    os.chdir(destination) 
+
+    # Filename must include extension
+    
+    # Using cv2.imwrite() method 
+    # Saving the image 
+    cv2.imwrite(filename, image) 
 
 # get grayscale image
 def get_grayscale(image):
@@ -42,34 +53,27 @@ def canny(image):
 
 #skew correction
 def deskew(image):
-    coords = np.column_stack(np.where(image > 0))
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.bitwise_not(gray)
+    
+    thresh = cv2.threshold(gray, 0, 255,cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    coords = np.column_stack(np.where(thresh > 0))
     angle = cv2.minAreaRect(coords)[-1]
     if angle < -45:
         angle = -(90 + angle)
     else:
         angle = -angle
-    (h, w) = image.shape[:2]
+    (h, w) = thresh.shape[:2]
     center = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    rotated = cv2.warpAffine(thresh, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return rotated
 
 #template matching
 def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED) 
 
-# TESSERACT
-def image_to_text(filePath):
-    image = cv2.imread(filePath)
-
-    gray = get_grayscale(image)
-    # thresh = thresholding(gray)
-    # opening2 = opening(gray)
-    # canny2 = canny(gray)
-
-    # tesseract run on subject
-    text = pytesseract.image_to_string(gray, lang='ind')
-    return text
 
 def image_to_data(filePath):
     # tesseract run on subject
@@ -79,21 +83,43 @@ def image_to_data(filePath):
 def slice_per(source, step):
     return [source[i::step] for i in range(step)]
 
-filePath = "../sample/s_tugas1.jpeg"
-a = image_to_data(filePath)
-# print(a['text'])
-# print(b[11])
-# list1 = np.array_split(b, 11)
-# print(list1[0])
-# i = iter(data)
-# b = dict(izip(i, i))
+def rotate_image(image, center = None, scale = 1.0):
+    angle=360-int(re.search('(?<=Rotate: )\d+', pytesseract.image_to_osd(image)).group(0))
+    (h, w) = image.shape[:2]
+    if center is None:
+        center = (w / 2, h / 2)
+
+    # Perform the rotation
+    M = cv2.getRotationMatrix2D(center, angle, scale)
+    rotated = cv2.warpAffine(image, M, (w, h))
+
+    return rotated
+
+def check_rotation(filepath):
+    im = cv2.imread(str(filepath), cv2.IMREAD_COLOR)
+    newdata=pytesseract.image_to_osd(im)
+    # re.search('(?<=Rotate: )\d+', newdata).group(0)
+    print(newdata)
+    return rotate_image(im)
+
+# TESSERACT
+def image_to_text(filePath):
+    image = cv2.imread(filePath)
+    # image = deskew(image)
+    image = check_rotation(filePath)
 
 
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-# print(image_to_text(filePath))
-# print(image_to_text("/opening.png"))
-# print(image_to_text("/canny.png"))
+    # gray = get_grayscale(img_rgb) # jadi abu2
+    # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # jadi hitam putih
+    # gray = cv2.medianBlur(gray, 3) # diperjelas
 
-# cv2.imwrite('./thresh.png', thresh)
-# cv2.imwrite('./opening.png', opening)
-# cv2.imwrite('./canny.png', canny)
+    # thresh = thresholding(gray)
+    # opening2 = opening(gray)
+    # canny2 = canny(gray)
+
+    # tesseract run on subject
+    text = pytesseract.image_to_string(image, lang='ind')
+    write_image_to_disk(image, "deskew.jpg")
+    return text
