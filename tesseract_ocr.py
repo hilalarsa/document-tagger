@@ -8,6 +8,23 @@ import os
 from PIL import Image
 from itertools import izip
 
+from pdf2image.exceptions import (
+    PDFInfoNotInstalledError,
+    PDFPageCountError,
+    PDFSyntaxError
+)
+from pdf2image import convert_from_path, convert_from_bytes
+
+
+def change_format_and_ocr(filepath, filename):
+    print(filepath, filename)
+    # pages = convert_from_path(filepath)
+    images = convert_from_path("filepath", 500)
+    print(images)
+    # for page in pages:
+    #     page.save('./image_output/out.png', 'PNG')
+    #     print(page)
+
 
 # img = cv2.imread('image.jpg')
 def write_image_to_disk(image, filename):
@@ -99,27 +116,22 @@ def check_rotation(filepath):
     im = cv2.imread(str(filepath), cv2.IMREAD_COLOR)
     newdata=pytesseract.image_to_osd(im)
     # re.search('(?<=Rotate: )\d+', newdata).group(0)
-    print(newdata)
     return rotate_image(im)
 
 # TESSERACT
 def image_to_text(filePath):
     image = cv2.imread(filePath)
     # image = deskew(image)
-    image = check_rotation(filePath)
+    image = check_rotation(filePath) # if image sideways, it will be rotated based on tesseract confidence level
 
+    # image = get_grayscale(image) # jadi abu2
+    # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # jadi hitam putih
+    # image = cv2.medianBlur(image, 3) # diperjelas
 
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # gray = get_grayscale(img_rgb) # jadi abu2
-    # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # jadi hitam putih
-    # gray = cv2.medianBlur(gray, 3) # diperjelas
-
-    # thresh = thresholding(gray)
-    # opening2 = opening(gray)
-    # canny2 = canny(gray)
+    # image = thresholding(image)
+    # image = opening(image)
 
     # tesseract run on subject
     text = pytesseract.image_to_string(image, lang='ind')
-    write_image_to_disk(image, "deskew.jpg")
+    write_image_to_disk(image, "gray thres opening2.jpg")
     return text

@@ -1,20 +1,20 @@
 
 # importing required modules 
-import PyPDF2 
+from PyPDF2 import PdfFileReader
 import nltk
 
-def pdf_to_text(filePath):
-    # creating a pdf file object 
-    pdfFileObj = open(filePath, 'rb') 
 
+def pdf_to_text(filePath, filename):
+    # creating a pdf file object 
+    # print(result)
+    pdfFileObj = open(filePath, 'rb') 
     # creating a pdf reader object 
-    pdfReader = PyPDF2.PdfFileReader(pdfFileObj) 
+    pdfReader = PdfFileReader(pdfFileObj)
 
     # printing number of pages in pdf file 
-    # print(pdfReader.numPages) 
 
     # creating a page object 
-    pageObj = pdfReader.getPage(0) 
+    pageObj = pdfReader.getPage(1) 
 
     # extracting text from page 
     # print(pageObj.extractText()) 
@@ -27,7 +27,11 @@ def pdf_to_text(filePath):
             # print(word)
 
     # closing the pdf file object 
+    # print(pageObj.extractText())
+    result = pageObj.extractText()
 
     # return function value
-    return pageObj.extractText()
+    return result
     pdfFileObj.close()
+
+

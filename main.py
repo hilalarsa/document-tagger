@@ -11,9 +11,9 @@ from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFacto
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
 # from external file
-from tesseract_ocr import image_to_text
+from tesseract_ocr import image_to_text, change_format_and_ocr
 from pypdf_test import pdf_to_text
-from difflib_checker import text_matcher, get_document_type, regex_checker
+from difflib_checker import text_matcher, text_matcher_dosen, get_document_type, regex_checker
 from api import get_data
 
 # receive filepath, filter to either pdf or image
@@ -25,7 +25,11 @@ def textTransform(filePath):
         return(transformed_text)
     elif (file_extension == ".pdf" ):
         # Format PDF
-        transformed_text = pdf_to_text(filePath)
+        transformed_text = pdf_to_text(filePath, filename)
+        if(transformed_text == ""):
+            print("PDF IS FAILING")
+            change_format_and_ocr(filePath, filename)
+
         return(transformed_text)
     else:
         print("Format Unrecognized. Aborting ...")
@@ -41,10 +45,12 @@ def textTransform(filePath):
 # tesseract run on subject to raw text
 # rawText = pytesseract.image_to_string('./contoh 2 surat tugas.jpeg', lang='ind')
 # raw_text = pytesseract.image_to_string('../sample/lembarpengesahan1.jpeg', lang='ind')
-raw_text = textTransform("../sample/sertifikat1.jpeg")
-# raw_text = textTransform("../sample/lembarpengesahan1.jpeg")
+# raw_text = textTransform("../sample/tugas/tugas_kolektif2.jpeg")
+raw_text = textTransform("../sample/lembar pengesahan/lembarpengesahan1.jpeg")
 # raw_text = textTransform(sys.argv[1])
-# raw_text = textTransform("../sample_pdf3.pdf")
+# raw_text = textTransform("../sample/tugas/tugas_individu1.jpeg")
+# raw_text = textTransform("../sample/other/test2.pdf")
+
 # raw_text = textTransform("../server/dosen.js")
 
 # tokenize text into sentences
@@ -56,7 +62,7 @@ for i, sentence in enumerate(sentences):
     # change all text to lowercase
     resultLowerCase = sentence.lower()
     # replace enter (\n) with space
-    resultNoEnter = re.sub('\n', ' ', resultLowerCase)
+    resultNoEnter = re.sub('[\t\n]', ' ', resultLowerCase)
     # replace tabs and multiple spaces with single space
     resultNoTab = re.sub(' +', ' ', resultNoEnter)
     # change text encoding to utf8
@@ -70,8 +76,6 @@ for i, sentence in enumerate(sentences):
     # print words
 
 # text ready to be compared with database
-# print(full_words)
-
 dataDosen = get_data('dosen')
 dataJudul = get_data('judul')
 dataRegexNomor = get_data('nomor')
@@ -83,6 +87,7 @@ dataRegexIsi = get_data('isi')
 
 # check document type
 document_type_matched_array = []
+is_multiple = ""
 for item in dataJudul:
     trigger_word_array = item['trigger_word'].split(', ') # get trigger word, split by comma and space to get its array form
     for trigger_word in trigger_word_array: 
@@ -95,17 +100,52 @@ for item in dataJudul:
         else:
             continue
 
-# NOTE : if on surat tugas / surat keputusan / surat pengangkatan => document_type_matched_array will have more than 1 content
+if(len(document_type_matched_array) == 0):
+    document_type_matched_array.append('unknown')
 
-# check dosen amount, cz sometime dosen amount matters
 nama_dosen = []
-for item in dataDosen:
-    a = text_matcher(full_words, item["nama_dosen"])
-    if a is not None:
-        nama_dosen.append(a)
-dosenAmount = len(nama_dosen)
 
-# print(document_type_matched_array)
+# for is_multiple false, untuk tipe surat yang urutan dosennya tidak berpengaruh
+    # for item in dataDosen:
+    #     a = text_matcher(full_words, item["nama_dosen"])
+    #     if a is not None:
+    #         print(a)
+    #         nama_dosen.append(a)
+
+
+for word in full_words:
+    for dosen in dataDosen:
+        # nama_split = dosen['nama_dosen'].split()
+        a = text_matcher_dosen(dosen['nama_dosen'], word)
+        if a is not None:
+            nama_dosen.append(a)
+print(nama_dosen)
+dosen_array = []
+dosen_text = ""
+for i, nama in enumerate(nama_dosen):
+    print i
+    for dosen in dataDosen:
+        dosennamefull = dosen['nama_dosen'].split()
+        part_length = len(dosennamefull)
+        counter = 0
+        for dosen_name in dosennamefull:
+            if(nama_dosen[i+counter] == dosennamefull[counter] and counter <= part_length and i+counter < len(nama_dosen)-1):
+                dosen_text = dosen_text + " " + nama_dosen[i+counter]
+                # print counter
+                # print(nama_dosen[i+counter])
+                # print(dosennamefull[counter])
+                counter = counter + 1
+                if(counter == part_length):
+                    print dosennamefull
+                    dosen_array.append({"text": dosennamefull, "counter": "1"})
+                    dosen_text = ""
+            else:
+                dosen_text = ""
+                break
+nama_dosen = dosen_array
+
+print(nama_dosen)
+dosenAmount = len(nama_dosen)
 document_type = '' # tipe dokumen or document type to be outputted
 document_is_multiple = '' # tag for whether the tipe's bobot is affected by dosen amount
 for item in dataJudul:
@@ -115,11 +155,14 @@ for item in dataJudul:
             document_type = item['tipe_judul']
             document_is_multiple = "true"
 
+# print(nama_dosen)
+# print(document_type)
+
 if(document_type == ''): # if no dosen or dosen only 1 name in doc, apply first array value
     document_type = document_type_matched_array[0] # if dosen amount doesnt matter, array will ALWAYS has 1 index, so just get the 1st value in the array as legit doc type
     document_is_multiple = "false"
 
-# OUTPUT [1]
+# # OUTPUT [1]
 # print(document_type)
 # print(nama_dosen)
 # print(dosenAmount)
@@ -146,7 +189,7 @@ for regex in dataRegexNomor:
 
 print(document_type)
 print(nama_dosen_final)
-print(dosenAmount)
+# print(dosenAmount)
 print(nomor_surat)
 
 # TODO : regex !!!

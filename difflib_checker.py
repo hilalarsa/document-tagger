@@ -41,14 +41,34 @@ def text_matcher(sourceWord, testedWord):
                     tempOutput = [] # reset output
     if(counter > 0):
         return {"text": array_merge(result), "counter": counter}
+
+
+def text_matcher_dosen(sourceWord, testedWord):
+    result = [] # final result
+    tempOutput = [] # temporary var to save output per name/word
+    counter = 0
+    name_counter = 0
+    nama_asli_dosen = sourceWord
+    array_dosen = sourceWord.split()
+    partLength = len(array_dosen)
+    for single_name in array_dosen:
+        # singleNameArray = testedWord.split() # get per name/rows from api
+        
+        # partLength = len(singleNameArray) # save name length for checker start-end indicator 
+        # for singleName in singleNameArray: #get per name word from splitted name/row from api
+            # n = 0 #set counter for end condition when n == nameLength
+        seq = SequenceMatcher(a=single_name,b=testedWord)
+        
+        # while n < partLength: # stop appending when reached end of each name
+
+        if(seq.ratio() > 0.8): # if ratio is more than 80%, place data from api to output text
+            return single_name
     
 def array_merge(array):
     limiter = ' '
     return limiter.join(array)
 
 def get_document_type(source_word, judul_array):
-    print source_word
-    print judul_array
     tipe_judul = judul_array['tipe_judul']
     trigger_word_array = judul_array['trigger_word'].split(', ')
     for item in trigger_word_array:
