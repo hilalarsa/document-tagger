@@ -8,6 +8,9 @@ import os
 from PIL import Image
 from itertools import izip
 
+import ghostscript
+import locale
+
 from pdf2image.exceptions import (
     PDFInfoNotInstalledError,
     PDFPageCountError,
@@ -16,14 +19,20 @@ from pdf2image.exceptions import (
 from pdf2image import convert_from_path, convert_from_bytes
 
 
-def change_format_and_ocr(filepath, filename):
-    print(filepath, filename)
-    # pages = convert_from_path(filepath)
-    images = convert_from_path("filepath", 500)
-    print(images)
-    # for page in pages:
-    #     page.save('./image_output/out.png', 'PNG')
-    #     print(page)
+def change_format_and_ocr(pdf_input_path, filename):
+    jpeg_output_path = filename+".jpeg"
+    args = ["pdf2jpeg", # actual value doesn't matter
+            "-dNOPAUSE",
+            "-sDEVICE=jpeg",
+            "-r144",
+            "-sOutputFile=" + jpeg_output_path,
+            pdf_input_path]
+
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+
+    ghostscript.Ghostscript(*args)
+    return image_to_text(jpeg_output_path)
 
 
 # img = cv2.imread('image.jpg')

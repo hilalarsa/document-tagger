@@ -26,10 +26,11 @@ def textTransform(filePath):
     elif (file_extension == ".pdf" ):
         # Format PDF
         transformed_text = pdf_to_text(filePath, filename)
-        if(transformed_text == ""):
+        if(transformed_text is None ):
             print("PDF IS FAILING")
-            change_format_and_ocr(filePath, filename)
+            transformed_text = change_format_and_ocr(filePath, filename)
 
+        print(transformed_text)
         return(transformed_text)
     else:
         print("Format Unrecognized. Aborting ...")
@@ -47,11 +48,12 @@ def textTransform(filePath):
 # raw_text = pytesseract.image_to_string('../sample/lembarpengesahan1.jpeg', lang='ind')
 # raw_text = textTransform("../sample/tugas/tugas_kolektif2.jpeg")
 # raw_text = textTransform("../sample/sertifikat/sertifikat1.jpeg")
-raw_text = textTransform(sys.argv[1])
+# raw_text = textTransform(sys.argv[1])
+# raw_text = textTransform(sys.argv[1])
 # raw_text = textTransform("../sample/lembar pengesahan/lembarpengesahan1.jpeg")
 # raw_text = textTransform("../sample/tugas/tugas_individu1.jpeg")
-# raw_text = textTransform("../sample/other/test2.pdf")
-
+raw_text = textTransform("../sample/other/test3.pdf")
+print(raw_text)
 # tokenize text into sentences
 sentences = nltk.sent_tokenize(raw_text)
 
@@ -174,13 +176,16 @@ for regex in dataRegexNomor:
             nomor_surat.append(result)
 
 print("doc_type: "+document_type)
-for item in nama_dosen_final:
-    if(len(item)>0):
-        print("nama_dosen: "+' '.join(item['nama_dosen']))
-        print("bobot: "+item['bobot'])
-
+print(nama_dosen_final)
 print(''.join(nomor_surat))
-sys.stdout.flush()
+# print("doc_type: "+document_type)
+# for item in nama_dosen_final:
+#     if(len(item)>0):
+#         print("nama_dosen: "+' '.join(item['nama_dosen']))
+#         print("bobot: "+item['bobot'])
+
+# print(''.join(nomor_surat))
+# sys.stdout.flush()
 # TODO : regex !!!
 # JUDUL
 # for item in dataJudul:

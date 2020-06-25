@@ -14,24 +14,19 @@ def pdf_to_text(filePath, filename):
     # printing number of pages in pdf file 
 
     # creating a page object 
-    pageObj = pdfReader.getPage(1) 
+    pageObj = ""
+    try:
+        pageObj = pdfReader.getPage(1) 
+        pass
+    except Exception:
+        pass
 
-    # extracting text from page 
-    # print(pageObj.extractText()) 
-    # sentences = nltk.sent_tokenize(pageObj.extractText())
-    # for sentence in sentences:
-        # print(sentence)
-        # words = nltk.word_tokenize(sentence)
-        # print words
-        # for word in words:
-            # print(word)
-
-    # closing the pdf file object 
-    # print(pageObj.extractText())
-    result = pageObj.extractText()
-
-    # return function value
-    return result
-    pdfFileObj.close()
+    if(len(pageObj)>0):
+        result = pageObj.extractText()
+        pdfFileObj.close()
+        return result
+    else:
+        pass
 
 
+# print(pdf_to_text('../sample/other/test2.pdf', 'ching chong'))
