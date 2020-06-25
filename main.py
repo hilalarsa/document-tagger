@@ -46,12 +46,11 @@ def textTransform(filePath):
 # rawText = pytesseract.image_to_string('./contoh 2 surat tugas.jpeg', lang='ind')
 # raw_text = pytesseract.image_to_string('../sample/lembarpengesahan1.jpeg', lang='ind')
 # raw_text = textTransform("../sample/tugas/tugas_kolektif2.jpeg")
-raw_text = textTransform("../sample/lembar pengesahan/lembarpengesahan1.jpeg")
-# raw_text = textTransform(sys.argv[1])
+# raw_text = textTransform("../sample/sertifikat/sertifikat1.jpeg")
+raw_text = textTransform(sys.argv[1])
+# raw_text = textTransform("../sample/lembar pengesahan/lembarpengesahan1.jpeg")
 # raw_text = textTransform("../sample/tugas/tugas_individu1.jpeg")
 # raw_text = textTransform("../sample/other/test2.pdf")
-
-# raw_text = textTransform("../server/dosen.js")
 
 # tokenize text into sentences
 sentences = nltk.sent_tokenize(raw_text)
@@ -119,11 +118,10 @@ for word in full_words:
         a = text_matcher_dosen(dosen['nama_dosen'], word)
         if a is not None:
             nama_dosen.append(a)
-print(nama_dosen)
+
 dosen_array = []
 dosen_text = ""
 for i, nama in enumerate(nama_dosen):
-    print i
     for dosen in dataDosen:
         dosennamefull = dosen['nama_dosen'].split()
         part_length = len(dosennamefull)
@@ -131,12 +129,8 @@ for i, nama in enumerate(nama_dosen):
         for dosen_name in dosennamefull:
             if(nama_dosen[i+counter] == dosennamefull[counter] and counter <= part_length and i+counter < len(nama_dosen)-1):
                 dosen_text = dosen_text + " " + nama_dosen[i+counter]
-                # print counter
-                # print(nama_dosen[i+counter])
-                # print(dosennamefull[counter])
                 counter = counter + 1
                 if(counter == part_length):
-                    print dosennamefull
                     dosen_array.append({"text": dosennamefull, "counter": "1"})
                     dosen_text = ""
             else:
@@ -144,7 +138,6 @@ for i, nama in enumerate(nama_dosen):
                 break
 nama_dosen = dosen_array
 
-print(nama_dosen)
 dosenAmount = len(nama_dosen)
 document_type = '' # tipe dokumen or document type to be outputted
 document_is_multiple = '' # tag for whether the tipe's bobot is affected by dosen amount
@@ -161,13 +154,6 @@ for item in dataJudul:
 if(document_type == ''): # if no dosen or dosen only 1 name in doc, apply first array value
     document_type = document_type_matched_array[0] # if dosen amount doesnt matter, array will ALWAYS has 1 index, so just get the 1st value in the array as legit doc type
     document_is_multiple = "false"
-
-# # OUTPUT [1]
-# print(document_type)
-# print(nama_dosen)
-# print(dosenAmount)
-
-# print(document_type)
 
 # pembobotan start here
 nama_dosen_final = []
@@ -187,11 +173,14 @@ for regex in dataRegexNomor:
         if result is not None:
             nomor_surat.append(result)
 
-print(document_type)
-print(nama_dosen_final)
-# print(dosenAmount)
-print(nomor_surat)
+print("doc_type: "+document_type)
+for item in nama_dosen_final:
+    if(len(item)>0):
+        print("nama_dosen: "+' '.join(item['nama_dosen']))
+        print("bobot: "+item['bobot'])
 
+print(''.join(nomor_surat))
+sys.stdout.flush()
 # TODO : regex !!!
 # JUDUL
 # for item in dataJudul:

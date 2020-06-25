@@ -28,14 +28,12 @@ def change_format_and_ocr(filepath, filename):
 
 # img = cv2.imread('image.jpg')
 def write_image_to_disk(image, filename):
+    # Filename must include extension
     destination = './image_output'
     os.chdir(destination) 
 
-    # Filename must include extension
-    
-    # Using cv2.imwrite() method 
     # Saving the image 
-    cv2.imwrite(filename, image) 
+    cv2.imwrite(filename, image)
 
 # get grayscale image
 def get_grayscale(image):
@@ -124,8 +122,8 @@ def image_to_text(filePath):
     # image = deskew(image)
     image = check_rotation(filePath) # if image sideways, it will be rotated based on tesseract confidence level
 
-    # image = get_grayscale(image) # jadi abu2
-    # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # jadi hitam putih
+    image = get_grayscale(image) # jadi abu2
+    image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # jadi hitam putih
     # image = cv2.medianBlur(image, 3) # diperjelas
 
     # image = thresholding(image)
@@ -133,5 +131,5 @@ def image_to_text(filePath):
 
     # tesseract run on subject
     text = pytesseract.image_to_string(image, lang='ind')
-    write_image_to_disk(image, "gray thres opening2.jpg")
+    # write_image_to_disk(image, "opening-test2.jpg")
     return text
