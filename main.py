@@ -27,10 +27,8 @@ def textTransform(filePath):
         # Format PDF
         transformed_text = pdf_to_text(filePath, filename)
         if(transformed_text is None ):
-            print("PDF IS FAILING")
+            # print("PDF IS FAILING")
             transformed_text = change_format_and_ocr(filePath, filename)
-
-        print(transformed_text)
         return(transformed_text)
     else:
         print("Format Unrecognized. Aborting ...")
@@ -46,17 +44,22 @@ def textTransform(filePath):
 # tesseract run on subject to raw text
 # rawText = pytesseract.image_to_string('./contoh 2 surat tugas.jpeg', lang='ind')
 # raw_text = pytesseract.image_to_string('../sample/lembarpengesahan1.jpeg', lang='ind')
-# raw_text = textTransform("../sample/tugas/tugas_kolektif2.jpeg")
+# raw_text = textTransform("../sample/tugas/tugas_kolektif3.jpeg")
 # raw_text = textTransform("../sample/sertifikat/sertifikat1.jpeg")
 # raw_text = textTransform(sys.argv[1])
 # raw_text = textTransform(sys.argv[1])
-# raw_text = textTransform("../sample/lembar pengesahan/lembarpengesahan1.jpeg")
+raw_text = textTransform("../../sample/lembar pengesahan/lembarpengesahan1.jpeg")
 # raw_text = textTransform("../sample/tugas/tugas_individu1.jpeg")
-raw_text = textTransform("../sample/other/test3.pdf")
-print(raw_text)
+# raw_text = textTransform("../sample/other/test3.pdf")
+# raw_text = textTransform("../sample/pengujian/keputusan1.jpg")
+# raw_text = textTransform("../sample/pengujian/lampiran-jurnal.pdf")
+# raw_text = textTransform("../sample/pengujian/lembarpengesahan1.jpeg")
+# raw_text = textTransform("../sample/pengujian/sertifikat1.jpeg")
+# raw_text = textTransform("../sample/sertifikat/sertifikat2.pdf")
+# raw_text = textTransform("../sample/sertifikat/tugas_individu2.pdf")
+# raw_text = textTransform("../sample/pengujian/tugas_kolektif1.jpeg")
 # tokenize text into sentences
 sentences = nltk.sent_tokenize(raw_text)
-
 # split sentence into individual word
 full_words = []
 for i, sentence in enumerate(sentences):
@@ -75,7 +78,6 @@ for i, sentence in enumerate(sentences):
     word = encodedText.split()
     full_words = full_words + word
     # print words
-
 # text ready to be compared with database
 dataDosen = get_data('dosen')
 dataJudul = get_data('judul')
@@ -133,7 +135,7 @@ for i, nama in enumerate(nama_dosen):
                 dosen_text = dosen_text + " " + nama_dosen[i+counter]
                 counter = counter + 1
                 if(counter == part_length):
-                    dosen_array.append({"text": dosennamefull, "counter": "1"})
+                    dosen_array.append({"text": dosennamefull, "counter": "1", "nidn": dosen['nidn'], "nip": dosen['nomor_dosen']})
                     dosen_text = ""
             else:
                 dosen_text = ""
@@ -165,7 +167,7 @@ for i, nama in enumerate(nama_dosen):
     else:
         bobot = 10 # default bobot if dosen amount doesnt matter
 
-    nama_dosen_final.append({"nama_dosen":nama['text'], "bobot":bobot})
+    nama_dosen_final.append({"nama_dosen":' '.join(nama['text']), "bobot":bobot, "nidn": nama['nidn'], "nip": nama['nip']})
 
 
 nomor_surat = []
@@ -175,14 +177,30 @@ for regex in dataRegexNomor:
         if result is not None:
             nomor_surat.append(result)
 
-print("doc_type: "+document_type)
+tanggal = []
+for regex in dataRegexIsi:
+    for word in full_words:
+        result = regex_checker(regex['regex_isi'], word)
+        if result is not None:
+            print(result)
+            tanggal.append(result)
+
+filepath = "../sample/tugas/tugas_individu1.jpeg"
+# filepath = sys.argv[1]
+file_name = os.path.basename(filepath)
 print(nama_dosen_final)
-print(''.join(nomor_surat))
-# print("doc_type: "+document_type)
-# for item in nama_dosen_final:
-#     if(len(item)>0):
-#         print("nama_dosen: "+' '.join(item['nama_dosen']))
-#         print("bobot: "+item['bobot'])
+print("filename: "+file_name)
+print("doc_type: "+document_type)
+for item in nama_dosen_final:
+    # if(len(item)>0):
+    print("\tnama_dosen: "+item['nama_dosen'])
+    print("\tbobot: "+str(item['bobot']))
+    print("\tnip: "+item['nip'])
+    print("\tnidn: "+item['nidn'])
+print("nomor:" + ' '.join(nomor_surat))
+print("tanggal: " + ' '.join(tanggal))
+
+
 
 # print(''.join(nomor_surat))
 # sys.stdout.flush()
@@ -198,3 +216,4 @@ print(''.join(nomor_surat))
 # check dosen name, and name occurance
 # check document type
 # check rest info
+
